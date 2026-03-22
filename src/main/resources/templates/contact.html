@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Contact Us — ExTracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --cream:       #f7f3ec;
+            --cream-dark:  #ede7da;
+            --forest:      #1c3a2f;
+            --forest-mid:  #2a5444;
+            --teal:        #2a9d8f;
+            --teal-light:  #d6f0ed;
+            --teal-mid:    #52c4b6;
+            --coral:       #e76f51;
+            --coral-light: #fce8e2;
+            --gold:        #e9c46a;
+            --gold-light:  #fdf5dc;
+            --green:       #52b788;
+            --green-light: #d8f3dc;
+            --ink:         #1a1a1a;
+            --muted:       #6b7a74;
+            --border:      #c8e0dc;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Epilogue', sans-serif;
+            background: var(--cream); color: var(--ink);
+        }
+
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(42,157,143,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42,157,143,0.025) 1px, transparent 1px);
+            background-size: 52px 52px;
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── TOPNAV ── */
+        .topnav {
+            position: sticky; top: 0; z-index: 200;
+            background: var(--forest);
+            display: flex; align-items: center;
+            height: 60px; padding: 0 40px;
+            animation: fadeDown 0.5s ease both;
+        }
+
+        .nav-brand {
+            font-family: 'Fraunces', serif; font-size: 1.25rem; font-weight: 700;
+            color: #fff; letter-spacing: -0.02em;
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+
+        .nav-brand-dot {
+            width: 8px; height: 8px; background: var(--teal); border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(42,157,143,0.25);
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 2px; margin-left: 40px; }
+
+        .nav-link {
+            font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+            color: rgba(255,255,255,0.45); text-decoration: none;
+            padding: 6px 14px; border-radius: 4px; transition: color 0.2s, background 0.2s;
+        }
+
+        .nav-link:hover  { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.07); }
+        .nav-link.active { color: #fff; background: rgba(42,157,143,0.2); }
+
+        .nav-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+
+        .nav-signout {
+            font-size: 0.72rem; color: rgba(255,255,255,0.4);
+            text-decoration: none; letter-spacing: 0.04em;
+            transition: color 0.2s; display: flex; align-items: center; gap: 5px;
+        }
+        .nav-signout:hover { color: var(--coral); }
+        .nav-signout svg { width: 13px; height: 13px; }
+
+        /* ── HERO ── */
+        .hero {
+            background: var(--forest);
+            padding: 60px 40px 56px;
+            position: relative; overflow: hidden;
+            animation: fadeSlideUp 0.6s 0.1s ease both;
+        }
+
+        .hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse 60% 80% at 100% 50%, rgba(42,157,143,0.12) 0%, transparent 70%);
+        }
+
+        .hero-grid {
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        .hero-inner {
+            position: relative; z-index: 2;
+            max-width: 760px; margin: 0 auto;
+        }
+
+        .hero-eyebrow {
+            font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--teal); font-weight: 600; margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .hero-eyebrow-line { width: 24px; height: 1px; background: var(--teal); }
+
+        .hero-title {
+            font-family: 'Fraunces', serif; font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700; color: #fff; line-height: 1.1;
+            letter-spacing: -0.02em; margin-bottom: 16px;
+        }
+
+        .hero-title em { font-style: italic; font-weight: 400; color: var(--gold); }
+
+        .hero-sub {
+            font-size: 0.88rem; color: rgba(255,255,255,0.45);
+            font-weight: 300; max-width: 480px; line-height: 1.7;
+        }
+
+        /* ── PAGE WRAP ── */
+        .page-wrap {
+            max-width: 760px; margin: 0 auto;
+            padding: 40px; position: relative; z-index: 1;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+
+        /* ── CARDS ── */
+        .card {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 2px; overflow: hidden;
+        }
+
+        .card-head {
+            padding: 18px 24px; border-bottom: 1px solid var(--cream-dark);
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        .card-icon {
+            width: 34px; height: 34px; border-radius: 2px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .card-icon svg { width: 16px; height: 16px; }
+        .card-icon.teal  { background: var(--teal-light);  color: var(--teal); }
+        .card-icon.gold  { background: var(--gold-light);  color: #a07a10; }
+        .card-icon.coral { background: var(--coral-light); color: var(--coral); }
+        .card-icon.green { background: var(--green-light); color: var(--green); }
+
+        .card-title {
+            font-family: 'Fraunces', serif; font-size: 0.95rem;
+            font-weight: 700; color: var(--forest);
+        }
+
+        .card-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+
+        p.para {
+            font-size: 0.84rem; color: var(--muted);
+            line-height: 1.85; font-weight: 300;
+        }
+
+        .divider { height: 1px; background: var(--cream-dark); }
+
+        /* ── CONTACT ROWS ── */
+        .contact-row {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px; background: var(--cream);
+            border: 1px solid var(--border); border-radius: 2px;
+            text-decoration: none; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+
+        .contact-row:hover {
+            border-color: var(--teal);
+            background: var(--teal-light);
+            box-shadow: 0 4px 16px rgba(28,58,47,0.06);
+        }
+
+        .contact-row:hover .row-arrow { stroke: var(--teal); }
+
+        .row-icon {
+            width: 36px; height: 36px; border-radius: 2px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+
+        .row-icon svg { width: 16px; height: 16px; }
+        .row-icon.gold  { background: var(--gold-light); }
+        .row-icon.teal  { background: var(--teal-light); }
+
+        .row-title { font-size: 0.82rem; font-weight: 600; color: var(--forest); }
+        .row-sub   { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+        .row-arrow { margin-left: auto; color: var(--border); transition: stroke 0.2s; }
+
+        /* ── HOURS BADGE ── */
+        .hours-badge {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 16px; background: var(--green-light); border-radius: 2px;
+        }
+
+        .hours-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; flex-shrink: 0; }
+        .hours-text { font-size: 0.78rem; color: #2d7a50; font-weight: 500; }
+
+        /* ── FORM ── */
+        .field-group { display: flex; flex-direction: column; gap: 7px; }
+
+        .field-label {
+            font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--muted); font-weight: 600;
+        }
+
+        .field-wrap { position: relative; }
+
+        .field-icon {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: var(--border); display: flex; align-items: center;
+            pointer-events: none; transition: color 0.2s;
+        }
+
+        .field-icon svg { width: 14px; height: 14px; }
+
+        .field-input {
+            width: 100%; padding: 12px 16px 12px 42px;
+            border: 1.5px solid var(--border); background: var(--cream);
+            font-family: 'Epilogue', sans-serif; font-size: 0.875rem; color: var(--ink);
+            outline: none; border-radius: 2px;
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.2s;
+        }
+
+        .field-input:focus {
+            border-color: var(--teal); background: #fff;
+            box-shadow: 0 0 0 3px rgba(42,157,143,0.1);
+        }
+
+        .field-wrap:focus-within .field-icon { color: var(--teal); }
+        .field-input::placeholder { color: #b0bab7; }
+
+        textarea.field-input {
+            padding-top: 14px; resize: vertical; min-height: 100px;
+            padding-left: 16px;
+        }
+
+        .btn-submit {
+            padding: 12px 24px; background: var(--forest); color: #fff;
+            border: none; border-radius: 2px; cursor: pointer;
+            font-family: 'Epilogue', sans-serif; font-size: 0.78rem; font-weight: 600;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            display: inline-flex; align-items: center; gap: 8px;
+            position: relative; overflow: hidden; transition: color 0.3s;
+        }
+
+        .btn-submit::before {
+            content: ''; position: absolute; inset: 0; background: var(--teal);
+            transform: translateX(-101%);
+            transition: transform 0.4s cubic-bezier(0.77,0,0.18,1);
+        }
+
+        .btn-submit:hover::before { transform: translateX(0); }
+        .btn-submit span, .btn-submit svg { position: relative; z-index: 1; }
+        .btn-submit svg { width: 14px; height: 14px; }
+
+        /* ── BACK LINK ── */
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.75rem; color: var(--muted); text-decoration: none; transition: color 0.2s;
+            animation: fadeSlideUp 0.5s 0.5s ease both;
+        }
+
+        .back-link:hover { color: var(--teal); }
+        .back-link svg { width: 14px; height: 14px; }
+
+        .anim-1 { animation: fadeSlideUp 0.5s 0.15s ease both; }
+        .anim-2 { animation: fadeSlideUp 0.5s 0.25s ease both; }
+        .anim-3 { animation: fadeSlideUp 0.5s 0.35s ease both; }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .page-wrap { padding: 20px; }
+            .hero      { padding: 40px 20px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOPNAV -->
+<nav class="topnav">
+    <a class="nav-brand" href="/dashboard">
+        <span class="nav-brand-dot"></span>
+        ExTracker
+    </a>
+    <div class="nav-links">
+        <a class="nav-link" href="/dashboard">Overview</a>
+        <a class="nav-link" href="/add-expense">Expense</a>
+        <a class="nav-link" href="/add-income">Income</a>
+        <a class="nav-link" href="/comparison">Comparison</a>
+        <a class="nav-link" href="/reports">Reports</a>
+        <a class="nav-link" href="/savings">Savings</a>
+        <a class="nav-link" href="/settings">Settings</a>
+    </div>
+    <div class="nav-right">
+        <a class="nav-signout" href="/">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign out
+        </a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-inner">
+        <div class="hero-eyebrow">
+            <span class="hero-eyebrow-line"></span>
+            Get In Touch
+        </div>
+        <h1 class="hero-title">We're here to <em>help</em></h1>
+        <p class="hero-sub">Have a question, found a bug, or just want to say hello? Our team is ready to assist you — reach out anytime.</p>
+    </div>
+</section>
+
+<div class="page-wrap">
+
+    <!-- Success banner — only shown by JS when URL has ?success=sent -->
+    <div id="success-banner" style="
+        display:none;
+        padding: 14px 18px; background: var(--green-light);
+        border-left: 3px solid var(--green); border-radius: 2px;
+        font-size: 0.82rem; color: #2d7a50; font-weight: 500;
+        align-items: center; gap: 10px;
+        overflow: hidden;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Message sent! We'll get back to you within 24 hours.
+    </div>
+
+    <!-- About Support -->
+    <div class="card anim-1">
+        <div class="card-head">
+            <div class="card-icon teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+            </div>
+            <span class="card-title">How We Can Help</span>
+        </div>
+        <div class="card-body">
+            <p class="para">We're here to help. Whether you have a question about a feature, need help with your account, or just want to share feedback — our support team is always ready to assist.</p>
+            <p class="para">You can reach us directly via email and we typically respond within 24 hours on business days. For urgent matters, phone support is also available.</p>
+            <p class="para">Your experience matters to us. If something isn't working the way you expect, or if you have an idea that could make ExTracker better — please don't hesitate to reach out.</p>
+
+            <div class="divider"></div>
+
+            <!-- Email -->
+            <a  class="contact-row">
+                <div class="row-icon gold">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#a07a10" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="row-title">Email Support</div>
+                    <div class="row-sub"><span class="__cf_email__" data-cfemail="96e5e3e6e6f9e4e2d6f3eee2e4f7f5fdf3e4b8f5f9fb">[email&#160;protected]</span></div>
+                </div>
+                <svg class="row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </a>
+
+            <!-- Phone -->
+            <a  class="contact-row">
+                <div class="row-icon teal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="row-title">Phone Support</div>
+                    <div class="row-sub">+91**********</div>
+                </div>
+                <svg class="row-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </a>
+
+            <!-- Hours -->
+            <div class="hours-badge">
+                <div class="hours-dot"></div>
+                <span class="hours-text">Support available Mon – Fri, 9am – 6pm IST</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Message -->
+    <div class="card anim-2">
+        <div class="card-head">
+            <div class="card-icon gold">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+            </div>
+            <span class="card-title">Send a Message</span>
+        </div>
+        <div class="card-body">
+            <p class="para">Fill out the form below and we'll get back to you as soon as possible.</p>
+
+            <form action="/contact/send" method="post" style="display:flex; flex-direction:column; gap:14px;">
+
+                <div class="field-group">
+                    <label class="field-label">Your Name</label>
+                    <div class="field-wrap">
+                        <span class="field-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </span>
+                        <input class="field-input" type="text" name="name" placeholder="Your full name" required>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Email Address</label>
+                    <div class="field-wrap">
+                        <span class="field-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                        </span>
+                        <input class="field-input" type="email" name="email" placeholder="you@email.com" required>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Subject</label>
+                    <div class="field-wrap">
+                        <span class="field-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="21" y1="10" x2="3" y2="10"/>
+                                <line x1="21" y1="6" x2="3" y2="6"/>
+                                <line x1="21" y1="14" x2="3" y2="14"/>
+                                <line x1="21" y1="18" x2="3" y2="18"/>
+                            </svg>
+                        </span>
+                        <input class="field-input" type="text" name="subject" placeholder="What's this about?" required>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Message</label>
+                    <textarea class="field-input" name="message" placeholder="Tell us how we can help..." required></textarea>
+                </div>
+
+                <div>
+                    <button type="submit" class="btn-submit">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                        </svg>
+                        <span>Send Message</span>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <a href="/settings" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back to Settings
+    </a>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        const banner = document.getElementById('success-banner');
+
+        if (params.get('success') === 'sent' && banner) {
+            // Show banner
+            banner.style.display = 'flex';
+            banner.style.animation = 'fadeSlideUp 0.4s ease both';
+
+            // Immediately clean the URL so refresh won't show it again
+            window.history.replaceState({}, '', '/contact');
+
+            // Auto-hide after 4 seconds
+            setTimeout(() => {
+                banner.style.transition = 'opacity 0.5s ease, max-height 0.5s ease, padding 0.5s ease';
+                banner.style.opacity = '0';
+                banner.style.maxHeight = '0';
+                banner.style.padding = '0';
+                setTimeout(() => banner.remove(), 500);
+            }, 4000);
+        }
+    });
+</script>
+</body>
+</html>

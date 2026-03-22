@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>About Us — ExTracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --cream:       #f7f3ec;
+            --cream-dark:  #ede7da;
+            --forest:      #1c3a2f;
+            --forest-mid:  #2a5444;
+            --teal:        #2a9d8f;
+            --teal-light:  #d6f0ed;
+            --teal-mid:    #52c4b6;
+            --coral:       #e76f51;
+            --coral-light: #fce8e2;
+            --gold:        #e9c46a;
+            --gold-light:  #fdf5dc;
+            --ink:         #1a1a1a;
+            --muted:       #6b7a74;
+            --border:      #c8e0dc;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Epilogue', sans-serif;
+            background: var(--cream); color: var(--ink);
+        }
+
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(42,157,143,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42,157,143,0.025) 1px, transparent 1px);
+            background-size: 52px 52px;
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── TOPNAV ── */
+        .topnav {
+            position: sticky; top: 0; z-index: 200;
+            background: var(--forest);
+            display: flex; align-items: center;
+            height: 60px; padding: 0 40px;
+            animation: fadeDown 0.5s ease both;
+        }
+
+        .nav-brand {
+            font-family: 'Fraunces', serif; font-size: 1.25rem; font-weight: 700;
+            color: #fff; letter-spacing: -0.02em;
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+
+        .nav-brand-dot {
+            width: 8px; height: 8px; background: var(--teal); border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(42,157,143,0.25);
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 2px; margin-left: 40px; }
+
+        .nav-link {
+            font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+            color: rgba(255,255,255,0.45); text-decoration: none;
+            padding: 6px 14px; border-radius: 4px; transition: color 0.2s, background 0.2s;
+        }
+
+        .nav-link:hover  { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.07); }
+        .nav-link.active { color: #fff; background: rgba(42,157,143,0.2); }
+
+        .nav-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+
+        .nav-signout {
+            font-size: 0.72rem; color: rgba(255,255,255,0.4);
+            text-decoration: none; letter-spacing: 0.04em;
+            transition: color 0.2s; display: flex; align-items: center; gap: 5px;
+        }
+        .nav-signout:hover { color: var(--coral); }
+        .nav-signout svg { width: 13px; height: 13px; }
+
+        /* ── HERO ── */
+        .hero {
+            background: var(--forest);
+            padding: 60px 40px 56px;
+            position: relative; overflow: hidden;
+            animation: fadeSlideUp 0.6s 0.1s ease both;
+        }
+
+        .hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse 60% 80% at 100% 50%, rgba(42,157,143,0.12) 0%, transparent 70%);
+        }
+
+        .hero-grid {
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        .hero-inner {
+            position: relative; z-index: 2;
+            max-width: 760px; margin: 0 auto;
+        }
+
+        .hero-eyebrow {
+            font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--teal); font-weight: 600; margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .hero-eyebrow-line { width: 24px; height: 1px; background: var(--teal); }
+
+        .hero-title {
+            font-family: 'Fraunces', serif; font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700; color: #fff; line-height: 1.1;
+            letter-spacing: -0.02em; margin-bottom: 16px;
+        }
+
+        .hero-title em { font-style: italic; font-weight: 400; color: var(--gold); }
+
+        .hero-sub {
+            font-size: 0.88rem; color: rgba(255,255,255,0.45);
+            font-weight: 300; max-width: 480px; line-height: 1.7;
+        }
+
+        /* ── PAGE WRAP ── */
+        .page-wrap {
+            max-width: 760px; margin: 0 auto;
+            padding: 40px; position: relative; z-index: 1;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+
+        /* ── CARDS ── */
+        .card {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 2px; overflow: hidden;
+        }
+
+        .card-head {
+            padding: 18px 24px; border-bottom: 1px solid var(--cream-dark);
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        .card-icon {
+            width: 34px; height: 34px; border-radius: 2px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .card-icon svg { width: 16px; height: 16px; }
+        .card-icon.teal { background: var(--teal-light); color: var(--teal); }
+        .card-icon.gold { background: var(--gold-light); color: #a07a10; }
+
+        .card-title {
+            font-family: 'Fraunces', serif; font-size: 0.95rem;
+            font-weight: 700; color: var(--forest);
+        }
+
+        .card-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+
+        p.para {
+            font-size: 0.84rem; color: var(--muted);
+            line-height: 1.85; font-weight: 300;
+        }
+
+        .divider { height: 1px; background: var(--cream-dark); }
+
+        /* ── LOGO STRIP ── */
+        .logo-strip {
+            display: flex; align-items: center; gap: 14px;
+        }
+
+        .logo-circle {
+            width: 48px; height: 48px; background: var(--teal);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .logo-circle span {
+            font-family: 'Fraunces', serif; font-size: 1.2rem;
+            font-weight: 700; color: #fff;
+        }
+
+        .logo-name {
+            font-family: 'Fraunces', serif; font-size: 1.1rem;
+            font-weight: 700; color: var(--forest);
+        }
+
+        .logo-version { font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
+
+        /* ── TECH CHIPS ── */
+        .chips {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+        }
+
+        .chip {
+            background: var(--cream); border: 1px solid var(--border);
+            border-radius: 2px; padding: 12px 16px;
+        }
+
+        .chip-label {
+            font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--muted); font-weight: 600; margin-bottom: 4px;
+        }
+
+        .chip-value { font-size: 0.82rem; font-weight: 600; color: var(--forest); }
+
+        /* ── VALUES GRID ── */
+        .values-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .value-item {
+            background: var(--cream); border: 1px solid var(--border);
+            border-radius: 2px; padding: 16px;
+        }
+
+        .value-icon {
+            width: 30px; height: 30px; background: var(--teal-light);
+            border-radius: 2px; display: flex; align-items: center; justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .value-icon svg { width: 14px; height: 14px; color: var(--teal); }
+        .value-title { font-size: 0.82rem; font-weight: 600; color: var(--forest); margin-bottom: 4px; }
+        .value-desc  { font-size: 0.72rem; color: var(--muted); line-height: 1.6; font-weight: 300; }
+
+        /* ── BACK LINK ── */
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.75rem; color: var(--muted); text-decoration: none; transition: color 0.2s;
+            animation: fadeSlideUp 0.5s 0.5s ease both;
+        }
+
+        .back-link:hover { color: var(--teal); }
+        .back-link svg { width: 14px; height: 14px; }
+
+        .anim-1 { animation: fadeSlideUp 0.5s 0.15s ease both; }
+        .anim-2 { animation: fadeSlideUp 0.5s 0.25s ease both; }
+        .anim-3 { animation: fadeSlideUp 0.5s 0.35s ease both; }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .page-wrap  { padding: 20px; }
+            .hero       { padding: 40px 20px; }
+            .nav-links  { display: none; }
+            .chips      { grid-template-columns: 1fr 1fr; }
+            .values-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOPNAV -->
+<nav class="topnav">
+    <a class="nav-brand" href="/dashboard">
+        <span class="nav-brand-dot"></span>
+        ExTracker
+    </a>
+    <div class="nav-links">
+        <a class="nav-link" href="/dashboard">Overview</a>
+        <a class="nav-link" href="/add-expense">Expense</a>
+        <a class="nav-link" href="/add-income">Income</a>
+        <a class="nav-link" href="/comparison">Comparison</a>
+        <a class="nav-link" href="/reports">Reports</a>
+        <a class="nav-link" href="/savings">Savings</a>
+        <a class="nav-link" href="/settings">Settings</a>
+    </div>
+    <div class="nav-right">
+        <a class="nav-signout" href="/">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign out
+        </a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-inner">
+        <div class="hero-eyebrow">
+            <span class="hero-eyebrow-line"></span>
+            About ExTracker
+        </div>
+        <h1 class="hero-title">Built for <em>clarity,</em><br>designed for you</h1>
+        <p class="hero-sub">A precision-crafted personal finance platform that puts you in complete control of your financial life.</p>
+    </div>
+</section>
+
+<div class="page-wrap">
+
+    <!-- Who We Are -->
+    <div class="card anim-1">
+        <div class="card-head">
+            <div class="card-icon teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+            <span class="card-title">Who We Are</span>
+        </div>
+        <div class="card-body">
+            <div class="logo-strip">
+                <div class="logo-circle"><span>E</span></div>
+                <div>
+                    <div class="logo-name">ExTracker</div>
+                    <div class="logo-version">Version 1.0.0</div>
+                </div>
+            </div>
+            <div class="divider"></div>
+            <p class="para">ExTracker was built with one goal in mind: to give people complete visibility over their financial life without complexity getting in the way.</p>
+            <p class="para">We believe managing money shouldn't require a finance degree. Whether you're tracking daily expenses, monitoring monthly income, or planning for long-term savings — ExTracker brings everything into a single, clean dashboard.</p>
+            <p class="para">Built on modern technology and designed with care, ExTracker is crafted for individuals who want clarity, control, and confidence in every financial decision they make.</p>
+            <p class="para">Our platform is continuously evolving. We listen to our users and ship improvements regularly — because your financial journey never stops, and neither do we.</p>
+        </div>
+    </div>
+
+    <!-- Our Values -->
+    <div class="card anim-2">
+        <div class="card-head">
+            <div class="card-icon teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+            </div>
+            <span class="card-title">Our Values</span>
+        </div>
+        <div class="card-body">
+            <div class="values-grid">
+                <div class="value-item">
+                    <div class="value-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </div>
+                    <div class="value-title">Clarity</div>
+                    <div class="value-desc">We turn complex financial data into clear, actionable insights you can understand at a glance.</div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </div>
+                    <div class="value-title">Security</div>
+                    <div class="value-desc">Your data is yours. We treat every piece of financial information with the highest level of care and protection.</div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                    </div>
+                    <div class="value-title">Simplicity</div>
+                    <div class="value-desc">Every feature is designed to be intuitive. No clutter, no confusion — just what you need, when you need it.</div>
+                </div>
+                <div class="value-item">
+                    <div class="value-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <div class="value-title">Community</div>
+                    <div class="value-desc">We build with our users in mind — listening, iterating, and improving based on real feedback from real people.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Built With -->
+    <div class="card anim-3">
+        <div class="card-head">
+            <div class="card-icon gold">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="16 18 22 12 16 6"/>
+                    <polyline points="8 6 2 12 8 18"/>
+                </svg>
+            </div>
+            <span class="card-title">Built With</span>
+        </div>
+        <div class="card-body">
+            <p class="para">ExTracker is powered by a modern, reliable technology stack — chosen for performance, security and long-term maintainability.</p>
+            <div class="chips">
+                <div class="chip">
+                    <div class="chip-label">Backend</div>
+                    <div class="chip-value">Spring Boot 4.0</div>
+                </div>
+                <div class="chip">
+                    <div class="chip-label">Language</div>
+                    <div class="chip-value">Java 21</div>
+                </div>
+                <div class="chip">
+                    <div class="chip-label">Database</div>
+                    <div class="chip-value">MySQL 8.0</div>
+                </div>
+                <div class="chip">
+                    <div class="chip-label">Frontend</div>
+                    <div class="chip-value">Thymeleaf</div>
+                </div>
+                <div class="chip">
+                    <div class="chip-label">ORM</div>
+                    <div class="chip-value">Hibernate / JPA</div>
+                </div>
+                <div class="chip">
+                    <div class="chip-label">Version</div>
+                    <div class="chip-value">1.0.0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="/settings" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back to Settings
+    </a>
+
+</div>
+</body>
+</html>

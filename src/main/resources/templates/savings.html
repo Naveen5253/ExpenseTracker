@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Savings — ExTracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+        --cream:       #f7f3ec;
+        --cream-dark:  #ede7da;
+        --forest:      #1c3a2f;
+        --forest-mid:  #2a5444;
+        --teal:        #2a9d8f;
+        --teal-light:  #d6f0ed;
+        --teal-mid:    #52c4b6;
+        --coral:       #e76f51;
+        --coral-light: #fce8e2;
+        --gold:        #e9c46a;
+        --gold-light:  #fdf5dc;
+        --green:       #52b788;
+        --green-light: #d8f3dc;
+        --ink:         #1a1a1a;
+        --muted:       #6b7a74;
+        --border:      #c8e0dc;
+    }
+
+    body {
+        min-height: 100vh;
+        font-family: 'Epilogue', sans-serif;
+        background: var(--cream);
+        color: var(--ink);
+    }
+
+    body::before {
+        content: '';
+        position: fixed; inset: 0;
+        background-image:
+            linear-gradient(rgba(42,157,143,0.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(42,157,143,0.025) 1px, transparent 1px);
+        background-size: 52px 52px;
+        pointer-events: none; z-index: 0;
+    }
+
+    /* ── TOPNAV ── */
+    .topnav {
+        position: sticky; top: 0; z-index: 200;
+        background: var(--forest);
+        display: flex; align-items: center;
+        height: 60px; padding: 0 40px;
+        animation: fadeDown 0.5s ease both;
+    }
+
+    .nav-brand {
+        font-family: 'Fraunces', serif;
+        font-size: 1.25rem; font-weight: 700;
+        color: #fff; letter-spacing: -0.02em;
+        display: flex; align-items: center; gap: 10px;
+        text-decoration: none;
+    }
+
+    .nav-brand-dot {
+        width: 8px; height: 8px;
+        background: var(--teal); border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(42,157,143,0.25);
+    }
+
+    .nav-links {
+        display: flex; align-items: center; gap: 2px; margin-left: 40px;
+    }
+
+    .nav-link {
+        font-size: 0.75rem; font-weight: 500;
+        letter-spacing: 0.06em; text-transform: uppercase;
+        color: rgba(255,255,255,0.45); text-decoration: none;
+        padding: 6px 14px; border-radius: 4px;
+        transition: color 0.2s, background 0.2s;
+    }
+
+    .nav-link:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.07); }
+    .nav-link.active { color: #fff; background: rgba(42,157,143,0.2); }
+
+    .nav-right { margin-left: auto; display: flex; align-items: center; }
+
+    .nav-signout {
+        font-size: 0.72rem; color: rgba(255,255,255,0.4);
+        text-decoration: none; letter-spacing: 0.04em;
+        transition: color 0.2s; display: flex; align-items: center; gap: 5px;
+    }
+    .nav-signout:hover { color: var(--coral); }
+    .nav-signout svg { width: 13px; height: 13px; }
+
+    /* ── PAGE WRAP ── */
+    .page-wrap {
+        max-width: 1100px; margin: 0 auto;
+        padding: 40px; position: relative; z-index: 1;
+        display: flex; flex-direction: column; gap: 28px;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header { animation: fadeSlideUp 0.5s 0.05s ease both; }
+
+    .page-eyebrow {
+        font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase;
+        color: var(--green); font-weight: 600; margin-bottom: 6px;
+    }
+
+    .page-title {
+        font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 700;
+        color: var(--forest); letter-spacing: -0.02em;
+    }
+
+    .page-subtitle { font-size: 0.8rem; color: var(--muted); margin-top: 5px; font-weight: 300; }
+
+    /* ── SUMMARY CARDS ── */
+    .summary-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 14px; animation: fadeSlideUp 0.5s 0.1s ease both;
+    }
+
+    .summary-card {
+        background: #fff; border: 1px solid var(--border);
+        border-radius: 2px; padding: 22px;
+        position: relative; overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .summary-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(28,58,47,0.08); }
+
+    .summary-card::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+
+    .summary-card.c1::before { background: var(--green); }
+    .summary-card.c2::before { background: var(--coral); }
+    .summary-card.c3::before { background: var(--teal); }
+    .summary-card.c4::before { background: var(--gold); }
+
+    .summary-icon {
+        width: 36px; height: 36px; border-radius: 2px;
+        display: flex; align-items: center; justify-content: center; margin-bottom: 14px;
+    }
+
+    .summary-icon svg { width: 16px; height: 16px; }
+    .summary-icon.green { background: var(--green-light); color: #2d7a50; }
+    .summary-icon.coral { background: var(--coral-light); color: var(--coral); }
+    .summary-icon.teal  { background: var(--teal-light); color: var(--teal); }
+    .summary-icon.gold  { background: var(--gold-light); color: #a07a10; }
+
+    .summary-val {
+        font-family: 'Fraunces', serif; font-size: 1.7rem; font-weight: 700;
+        color: var(--forest); line-height: 1; letter-spacing: -0.02em;
+    }
+
+    .summary-label { font-size: 0.72rem; color: var(--muted); margin-top: 5px; }
+
+    /* ── STATUS BANNER ── */
+    .status-banner {
+        border-radius: 2px; padding: 24px 28px;
+        display: flex; align-items: center; gap: 20px;
+        position: relative; overflow: hidden;
+        animation: fadeSlideUp 0.5s 0.15s ease both;
+    }
+
+    .status-banner.saving {
+        background: var(--forest);
+        border: 1px solid rgba(82,183,136,0.3);
+    }
+
+    .status-banner.deficit {
+        background: #3a1c1c;
+        border: 1px solid rgba(231,111,81,0.3);
+    }
+
+    .status-banner::before {
+        content: ''; position: absolute; inset: 0;
+    }
+
+    .status-banner.saving::before {
+        background: radial-gradient(ellipse 60% 80% at 100% 50%, rgba(82,183,136,0.15) 0%, transparent 70%);
+    }
+
+    .status-banner.deficit::before {
+        background: radial-gradient(ellipse 60% 80% at 100% 50%, rgba(231,111,81,0.15) 0%, transparent 70%);
+    }
+
+    .status-icon {
+        width: 52px; height: 52px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        position: relative;
+    }
+
+    .status-icon.saving  { background: rgba(82,183,136,0.2); color: var(--green); }
+    .status-icon.deficit { background: rgba(231,111,81,0.2);  color: var(--coral); }
+    .status-icon svg { width: 22px; height: 22px; }
+
+    .status-text { position: relative; }
+
+    .status-title {
+        font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 700;
+        color: #fff; letter-spacing: -0.01em;
+    }
+
+    .status-sub { font-size: 0.8rem; color: rgba(255,255,255,0.45); margin-top: 4px; }
+
+    .status-amount {
+        margin-left: auto; position: relative;
+        font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+
+    .status-amount.saving  { color: var(--green); }
+    .status-amount.deficit { color: var(--coral); }
+
+    .status-rate {
+        font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em;
+        text-transform: uppercase; margin-top: 2px; text-align: right;
+        color: rgba(255,255,255,0.35);
+    }
+
+    /* ── CARD BASE ── */
+    .card {
+        background: #fff; border: 1px solid var(--border);
+        border-radius: 2px; overflow: hidden;
+    }
+
+    .card-head {
+        padding: 18px 24px 16px; border-bottom: 1px solid var(--cream-dark);
+        display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .card-title {
+        font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700; color: var(--forest);
+    }
+
+    .entry-badge {
+        font-size: 0.68rem; font-weight: 600; color: var(--muted);
+        background: var(--cream-dark); padding: 3px 10px; border-radius: 20px;
+    }
+
+    /* ── MONTHLY BARS ── */
+    .month-bars { padding: 20px 24px; display: flex; flex-direction: column; gap: 20px; }
+
+    .month-row { display: flex; flex-direction: column; gap: 8px; }
+
+    .month-row-top {
+        display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .month-row-name {
+        font-size: 0.82rem; font-weight: 600; color: var(--forest);
+    }
+
+    .month-row-net {
+        font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 700;
+    }
+
+    .month-row-net.saving  { color: var(--green); }
+    .month-row-net.deficit { color: var(--coral); }
+
+    .bar-pair { display: flex; flex-direction: column; gap: 5px; }
+
+    .bar-line { display: flex; align-items: center; gap: 10px; }
+
+    .bar-tag {
+        font-size: 0.6rem; font-weight: 600; letter-spacing: 0.08em;
+        text-transform: uppercase; width: 52px; flex-shrink: 0;
+    }
+
+    .bar-tag.income  { color: var(--green); }
+    .bar-tag.expense { color: var(--coral); }
+
+    .bar-track {
+        flex: 1; height: 10px; background: var(--cream-dark);
+        border-radius: 4px; overflow: hidden;
+    }
+
+    .bar-fill {
+        height: 100%; border-radius: 4px;
+        transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .bar-fill.income  { background: linear-gradient(90deg, #2d7a50, var(--green)); }
+    .bar-fill.expense { background: linear-gradient(90deg, var(--coral), #f4a261); }
+
+    .bar-val {
+        font-size: 0.7rem; font-weight: 600; color: var(--forest);
+        min-width: 56px; text-align: right;
+    }
+
+    /* ── MONTHLY TABLE ── */
+    table { width: 100%; border-collapse: collapse; }
+
+    thead th {
+        padding: 10px 20px; text-align: left;
+        font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+        color: var(--muted); font-weight: 600;
+        border-bottom: 1px solid var(--border);
+        background: var(--cream);
+    }
+
+    tbody tr { border-bottom: 1px solid var(--cream-dark); transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--cream); }
+
+    tbody td { padding: 13px 20px; font-size: 0.8rem; color: var(--ink); vertical-align: middle; }
+
+    .td-month { font-weight: 600; color: var(--forest); }
+
+    .td-income  { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 700; color: var(--green); }
+    .td-expense { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 700; color: var(--coral); }
+    .td-savings { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 700; }
+    .td-savings.saving  { color: var(--green); }
+    .td-savings.deficit { color: var(--coral); }
+
+    .status-pill {
+        font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em;
+        text-transform: uppercase; padding: 3px 10px; border-radius: 20px;
+        display: inline-flex; align-items: center; gap: 4px;
+    }
+
+    .status-pill.saving  { background: var(--green-light); color: #2d7a50; }
+    .status-pill.deficit { background: var(--coral-light); color: #9a3412; }
+
+    /* Empty state */
+    .empty-state {
+        padding: 48px 20px; text-align: center;
+    }
+
+    .empty-icon {
+        width: 44px; height: 44px; background: var(--cream-dark); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;
+    }
+
+    .empty-icon svg { width: 20px; height: 20px; color: var(--muted); }
+    .empty-title { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700; color: var(--forest); margin-bottom: 4px; }
+    .empty-sub { font-size: 0.78rem; color: var(--muted); }
+
+    /* Back link */
+    .back-link {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 0.75rem; color: var(--muted); text-decoration: none; transition: color 0.2s;
+        animation: fadeSlideUp 0.5s 0.4s ease both;
+    }
+
+    .back-link:hover { color: var(--teal); }
+    .back-link svg { width: 14px; height: 14px; }
+
+    .anim-1 { animation: fadeSlideUp 0.5s 0.2s ease both; }
+    .anim-2 { animation: fadeSlideUp 0.5s 0.25s ease both; }
+    .anim-3 { animation: fadeSlideUp 0.5s 0.3s ease both; }
+
+    @keyframes fadeSlideUp {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeDown {
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 900px) {
+        .summary-grid { grid-template-columns: repeat(2, 1fr); }
+        .nav-links { display: none; }
+    }
+
+    @media (max-width: 480px) {
+        .page-wrap { padding: 20px; }
+        .summary-grid { grid-template-columns: 1fr 1fr; }
+        .status-amount { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TOPNAV ── -->
+<nav class="topnav">
+  <a class="nav-brand" href="/dashboard">
+    <span class="nav-brand-dot"></span>
+    ExTracker
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="/dashboard">Overview</a>
+    <a class="nav-link" href="/add-expense">  Expense</a>
+    <a class="nav-link" href="/add-income"> Income</a>
+    <a class="nav-link" href="/comparison">Comparison</a>
+    <a class="nav-link" href="/reports">Reports</a>
+    <a class="nav-link active" href="/savings">Savings</a>
+    <a class="nav-link " href="/settings">Settings</a>
+
+  </div>
+  <div class="nav-right">
+    <a class="nav-signout" href="/">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign out
+    </a>
+  </div>
+</nav>
+
+<!-- ── PAGE ── -->
+<div class="page-wrap">
+
+  <!-- Header -->
+  <div class="page-header">
+    <p class="page-eyebrow">Finance</p>
+    <h1 class="page-title">Savings Overview</h1>
+    <p class="page-subtitle">Track how much you're saving each month from your income</p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <div class="summary-card c1">
+      <div class="summary-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+          <polyline points="17 6 23 6 23 12"/>
+        </svg>
+      </div>
+      <div class="summary-val" th:text="${currency} + ${totalIncome}">$0.00</div>
+      <div class="summary-label">Total Income</div>
+    </div>
+
+    <div class="summary-card c2">
+      <div class="summary-icon coral">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+          <polyline points="17 18 23 18 23 12"/>
+        </svg>
+      </div>
+      <div class="summary-val" th:text="${currency} + ${totalExpense}"
+      >$0.00</div>
+      <div class="summary-label">Total Expense</div>
+    </div>
+
+    <div class="summary-card c3">
+      <div class="summary-icon teal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div class="summary-val"
+           th:classappend="${isSaving} ? '' : 'text-coral'"
+           th:text="(${isSaving} ? '+' : '-') + ${currency} + ${netSavings}">$0.00</div>
+      <div class="summary-label">Net Savings</div>
+    </div>
+
+    <div class="summary-card c4">
+      <div class="summary-icon gold">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <div class="summary-val" th:text="${savingsRate} + '%'">0%</div>
+      <div class="summary-label">Savings Rate</div>
+    </div>
+  </div>
+
+  <!-- Status Banner -->
+  <div class="status-banner saving">
+    <div>
+      <!-- Saving icon — larger + green color -->
+      <svg th:if="${isSaving}" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#52b788" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+  </svg>
+      <svg th:unless="${isSaving}" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+
+
+    </div>
+    <div class="status-text">
+      <div class="status-title"
+           th:text="${isSaving} ? 'Great job! You are saving.' : 'Warning: You are overspending.'">
+      </div>
+      <div class="status-sub"
+           th:text="${isSaving}
+                     ? 'Your income exceeds your expenses. Keep it up!'
+                     : 'Your expenses exceed your income. Try to cut back.'">
+      </div>
+    </div>
+    <div style="margin-left:auto; position:relative; text-align:right;">
+      <div th:class="'status-amount ' + (${isSaving} ? 'saving' : 'deficit')"
+           th:text="(${isSaving} ? '+' : '-') + ${currency} + ${netSavings}">
+      </div>
+      <div class="status-rate" th:text="${savingsRate} + '% savings rate'"></div>
+    </div>
+  </div>
+
+  <!-- Monthly Bar Chart -->
+  <div class="card anim-1">
+    <div class="card-head">
+      <span class="card-title">Monthly Income vs Expense</span>
+      <span class="entry-badge" th:text="${#lists.size(monthlySavings)} + ' months'">0 months</span>
+    </div>
+
+    <div class="month-bars" th:if="${!#lists.isEmpty(monthlySavings)}">
+      <div class="month-row" th:each="m : ${monthlySavings}">
+        <div class="month-row-top">
+          <span class="month-row-name" th:text="${m.monthName}">Month</span>
+          <span th:class="'month-row-net ' + (${m.isSaving} ? 'saving' : 'deficit')"
+                th:text="(${m.isSaving} ? '+' : '-') + ${currency} + ${m.savings}">
+                    </span>
+        </div>
+        <div class="bar-pair">
+          <div class="bar-line">
+            <span class="bar-tag income">Income</span>
+            <div class="bar-track">
+              <div class="bar-fill income" th:style="'width:' + ${m.incomePct} + '%'"></div>
+            </div>
+            <span class="bar-val" th:text="${currency} + ${m.income}">$0</span>
+          </div>
+          <div class="bar-line">
+            <span class="bar-tag expense">Expense</span>
+            <div class="bar-track">
+              <div class="bar-fill expense" th:style="'width:' + ${m.expensePct} + '%'"></div>
+            </div>
+            <span class="bar-val" th:text="${currency} + ${m.expense}">$0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" th:if="${#lists.isEmpty(monthlySavings)}">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div class="empty-title">No data yet</div>
+      <div class="empty-sub">Add income and expenses to see your savings breakdown.</div>
+    </div>
+  </div>
+
+  <!-- Monthly Savings Table -->
+  <div class="card anim-2">
+    <div class="card-head">
+      <span class="card-title">Monthly Savings Table</span>
+      <span class="entry-badge" th:text="${#lists.size(monthlySavings)} + ' months'">0 months</span>
+    </div>
+
+    <table th:if="${!#lists.isEmpty(monthlySavings)}">
+      <thead>
+      <tr>
+        <th>Month</th>
+        <th>Income</th>
+        <th>Expense</th>
+        <th>Savings</th>
+        <th>Status</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="m : ${monthlySavings}">
+        <td><span class="td-month" th:text="${m.monthName}">—</span></td>
+        <td><span class="td-income"  th:text="${currency} + ${m.income}"
+        >$0</span></td>
+        <td><span class="td-expense" th:text="${currency} + ${m.expense}">$0</span></td>
+        <td>
+                        <span th:class="'td-savings ' + (${m.isSaving} ? 'saving' : 'deficit')"
+                              th:text="(${m.isSaving} ? '+' : '-') + ${currency} + ${m.savings}">
+                        </span>
+        </td>
+        <td>
+                        <span th:class="'status-pill ' + (${m.isSaving} ? 'saving' : 'deficit')"
+                              th:text="${m.isSaving} ? 'Saving' : 'Deficit'">
+                        </span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" th:if="${#lists.isEmpty(monthlySavings)}">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div class="empty-title">No monthly data</div>
+      <div class="empty-sub">Add income and expenses to see monthly savings.</div>
+    </div>
+  </div>
+
+  <!-- Back link -->
+  <a href="/dashboard" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Back to Dashboard
+  </a>
+
+</div>
+
+</body>
+</html>

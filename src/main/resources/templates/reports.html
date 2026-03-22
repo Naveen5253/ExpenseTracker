@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Reports — ExTracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --cream:       #f7f3ec;
+            --cream-dark:  #ede7da;
+            --forest:      #1c3a2f;
+            --forest-mid:  #2a5444;
+            --teal:        #2a9d8f;
+            --teal-light:  #d6f0ed;
+            --teal-mid:    #52c4b6;
+            --coral:       #e76f51;
+            --coral-light: #fce8e2;
+            --gold:        #e9c46a;
+            --gold-light:  #fdf5dc;
+            --green:       #52b788;
+            --green-light: #d8f3dc;
+            --ink:         #1a1a1a;
+            --muted:       #6b7a74;
+            --border:      #c8e0dc;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Epilogue', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+        }
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(42,157,143,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42,157,143,0.025) 1px, transparent 1px);
+            background-size: 52px 52px;
+            pointer-events: none; z-index: 0;
+        }
+
+        .topnav {
+            position: sticky; top: 0; z-index: 200;
+            background: var(--forest);
+            display: flex; align-items: center;
+            height: 60px; padding: 0 40px;
+            animation: fadeDown 0.5s ease both;
+        }
+
+        .nav-brand {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem; font-weight: 700;
+            color: #fff; letter-spacing: -0.02em;
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-brand-dot {
+            width: 8px; height: 8px;
+            background: var(--teal); border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(42,157,143,0.25);
+        }
+
+        .nav-links {
+            display: flex; align-items: center; gap: 2px; margin-left: 40px;
+        }
+
+        .nav-link {
+            font-size: 0.75rem; font-weight: 500;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            color: rgba(255,255,255,0.45); text-decoration: none;
+            padding: 6px 14px; border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .nav-link:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.07); }
+        .nav-link.active { color: #fff; background: rgba(42,157,143,0.2); }
+
+        .nav-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+
+        .nav-signout {
+            font-size: 0.72rem; color: rgba(255,255,255,0.4);
+            text-decoration: none; letter-spacing: 0.04em;
+            transition: color 0.2s; display: flex; align-items: center; gap: 5px;
+        }
+        .nav-signout:hover { color: var(--coral); }
+        .nav-signout svg { width: 13px; height: 13px; }
+
+        .page-wrap {
+            max-width: 1100px; margin: 0 auto;
+            padding: 40px; position: relative; z-index: 1;
+            display: flex; flex-direction: column; gap: 28px;
+        }
+
+        .page-header { animation: fadeSlideUp 0.5s 0.05s ease both; }
+
+        .page-eyebrow {
+            font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--teal); font-weight: 600; margin-bottom: 6px;
+        }
+
+        .page-title {
+            font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 700;
+            color: var(--forest); letter-spacing: -0.02em;
+        }
+
+        .page-subtitle { font-size: 0.8rem; color: var(--muted); margin-top: 5px; font-weight: 300; }
+
+        .summary-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 14px; animation: fadeSlideUp 0.5s 0.1s ease both;
+        }
+
+        .summary-card {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 2px; padding: 22px;
+            position: relative; overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .summary-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(28,58,47,0.08); }
+
+        .summary-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        }
+
+        .summary-card.c1::before { background: var(--teal); }
+        .summary-card.c2::before { background: var(--coral); }
+        .summary-card.c3::before { background: var(--gold); }
+        .summary-card.c4::before { background: var(--green); }
+
+        .summary-icon {
+            width: 36px; height: 36px; border-radius: 2px;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 14px;
+        }
+
+        .summary-icon svg { width: 16px; height: 16px; }
+        .summary-icon.teal  { background: var(--teal-light); color: var(--teal); }
+        .summary-icon.coral { background: var(--coral-light); color: var(--coral); }
+        .summary-icon.gold  { background: var(--gold-light); color: #a07a10; }
+        .summary-icon.green { background: var(--green-light); color: #2d7a50; }
+
+        .summary-val {
+            font-family: 'Fraunces', serif; font-size: 1.7rem; font-weight: 700;
+            color: var(--forest); line-height: 1; letter-spacing: -0.02em;
+        }
+
+        .summary-label { font-size: 0.72rem; color: var(--muted); margin-top: 5px; }
+
+        .card {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 2px; overflow: hidden;
+        }
+
+        .card-head {
+            padding: 18px 24px 16px; border-bottom: 1px solid var(--cream-dark);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .card-title {
+            font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700; color: var(--forest);
+        }
+
+        .entry-badge {
+            font-size: 0.68rem; font-weight: 600; color: var(--muted);
+            background: var(--cream-dark); padding: 3px 10px; border-radius: 20px;
+        }
+
+        .cat-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+        .cat-row { display: flex; flex-direction: column; gap: 6px; }
+
+        .cat-top {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .cat-name {
+            font-size: 0.8rem; font-weight: 600; color: var(--forest);
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .cat-count {
+            font-size: 0.65rem; color: var(--muted);
+            background: var(--cream-dark); padding: 2px 7px; border-radius: 20px;
+        }
+
+        .cat-right { display: flex; align-items: center; gap: 12px; }
+
+        .cat-pct { font-size: 0.7rem; font-weight: 600; color: var(--muted); }
+
+        .cat-amount {
+            font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 700; color: var(--forest);
+        }
+
+        .cat-track {
+            height: 8px; background: var(--cream-dark); border-radius: 4px; overflow: hidden;
+        }
+
+        .cat-fill {
+            height: 100%; border-radius: 4px;
+            background: linear-gradient(90deg, var(--teal), var(--teal-mid));
+            transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .two-col {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+            animation: fadeSlideUp 0.5s 0.25s ease both;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        thead th {
+            padding: 10px 20px; text-align: left;
+            font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--muted); font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            background: var(--cream);
+        }
+
+        tbody tr { border-bottom: 1px solid var(--cream-dark); transition: background 0.15s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: var(--cream); }
+
+        tbody td { padding: 12px 20px; font-size: 0.8rem; color: var(--ink); vertical-align: middle; }
+
+        .td-amount {
+            font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700; color: var(--forest);
+        }
+
+        .td-cat {
+            display: inline-flex; align-items: center;
+            background: var(--teal-light); color: var(--teal);
+            font-size: 0.65rem; font-weight: 600; letter-spacing: 0.05em;
+            text-transform: uppercase; padding: 3px 8px; border-radius: 20px;
+        }
+
+        .td-date { color: var(--muted); font-size: 0.75rem; }
+        .td-count { font-size: 0.78rem; color: var(--muted); }
+
+        .empty-state {
+            padding: 48px 20px; text-align: center;
+        }
+
+        .empty-icon {
+            width: 44px; height: 44px; background: var(--cream-dark); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;
+        }
+
+        .empty-icon svg { width: 20px; height: 20px; color: var(--muted); }
+        .empty-title { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700; color: var(--forest); margin-bottom: 4px; }
+        .empty-sub { font-size: 0.78rem; color: var(--muted); }
+
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.75rem; color: var(--muted); text-decoration: none; transition: color 0.2s;
+            animation: fadeSlideUp 0.5s 0.4s ease both;
+        }
+
+        .back-link:hover { color: var(--teal); }
+        .back-link svg { width: 14px; height: 14px; }
+
+        .anim-1 { animation: fadeSlideUp 0.5s 0.15s ease both; }
+        .anim-2 { animation: fadeSlideUp 0.5s 0.2s ease both; }
+        .anim-3 { animation: fadeSlideUp 0.5s 0.3s ease both; }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 900px) {
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+            .two-col { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .page-wrap { padding: 20px; }
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOPNAV -->
+<nav class="topnav">
+    <a class="nav-brand" href="/dashboard">
+        <span class="nav-brand-dot"></span>
+        ExTracker
+    </a>
+    <div class="nav-links">
+        <a class="nav-link" href="/dashboard">Overview</a>
+        <a class="nav-link" href="/add-expense">Expense</a>
+        <a class="nav-link" href="/add-income">Income</a>
+        <a class="nav-link" href="/comparison">Comparison</a>
+        <a class="nav-link active" href="/reports">Reports</a>
+        <a class="nav-link" href="/savings">Savings</a>
+        <a class="nav-link" href="/settings">Settings</a>
+    </div>
+    <div class="nav-right">
+        <a class="nav-signout" href="/">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign out
+        </a>
+    </div>
+</nav>
+
+<div class="page-wrap">
+
+    <!-- Header -->
+    <div class="page-header">
+        <p class="page-eyebrow">Analytics</p>
+        <h1 class="page-title">Expense Reports</h1>
+        <p class="page-subtitle">A full breakdown of your spending across all time</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+        <div class="summary-card c1">
+            <div class="summary-icon teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+            </div>
+            <div class="summary-val" th:text="${currency} + ${totalSpent}">$0.00</div>
+            <div class="summary-label">Total Spent</div>
+        </div>
+
+        <div class="summary-card c2">
+            <div class="summary-icon coral">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+            </div>
+            <div class="summary-val" th:text="${totalEntries}">0</div>
+            <div class="summary-label">Total Entries</div>
+        </div>
+
+        <div class="summary-card c3">
+            <div class="summary-icon gold">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                    <polyline points="17 6 23 6 23 12"/>
+                </svg>
+            </div>
+            <div class="summary-val" th:text="${currency} + ${highestExpense}">$0.00</div>
+            <div class="summary-label">Highest Expense</div>
+        </div>
+
+        <div class="summary-card c4">
+            <div class="summary-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+            </div>
+            <div class="summary-val" th:text="${currency} + ${avgPerMonth}">$0.00</div>
+            <div class="summary-label">Avg per Month</div>
+        </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="card anim-1">
+        <div class="card-head">
+            <span class="card-title">Spending by Category</span>
+            <span class="entry-badge" th:text="${#lists.size(categoryReport)} + ' categories'">0 categories</span>
+        </div>
+
+        <div class="cat-body" th:if="${!#lists.isEmpty(categoryReport)}">
+            <div class="cat-row" th:each="cat : ${categoryReport}">
+                <div class="cat-top">
+                    <div class="cat-name">
+                        <span th:text="${cat.category}">Category</span>
+                        <span class="cat-count" th:text="${cat.count} + ' entries'">0 entries</span>
+                    </div>
+                    <div class="cat-right">
+                        <span class="cat-pct" th:text="${cat.percentage} + '%'">0%</span>
+                        <span class="cat-amount" th:text="${currency} + ${cat.total}">$0</span>
+                    </div>
+                </div>
+                <div class="cat-track">
+                    <div class="cat-fill" th:style="'width:' + ${cat.barWidth} + '%'"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty-state" th:if="${#lists.isEmpty(categoryReport)}">
+            <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                </svg>
+            </div>
+            <div class="empty-title">No categories yet</div>
+            <div class="empty-sub">Add expenses to see category breakdown.</div>
+        </div>
+    </div>
+
+    <!-- Monthly + All Expenses -->
+    <div class="two-col">
+
+        <!-- Monthly Breakdown -->
+        <div class="card anim-2">
+            <div class="card-head">
+                <span class="card-title">Monthly Breakdown</span>
+                <span class="entry-badge" th:text="${#lists.size(monthlyReport)} + ' months'">0 months</span>
+            </div>
+
+            <table th:if="${!#lists.isEmpty(monthlyReport)}">
+                <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Entries</th>
+                    <th>Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="m : ${monthlyReport}">
+                    <td th:text="${m.month}">—</td>
+                    <td><span class="td-count" th:text="${m.count}">0</span></td>
+                    <td><span class="td-amount" th:text="${currency} + ${m.total}">$0</span></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(monthlyReport)}">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                </div>
+                <div class="empty-title">No monthly data</div>
+                <div class="empty-sub">Add expenses to see monthly totals.</div>
+            </div>
+        </div>
+
+        <!-- All Expenses -->
+        <div class="card anim-3">
+            <div class="card-head">
+                <span class="card-title">All Expenses</span>
+                <span class="entry-badge" th:text="${currency} + ${totalSpent}">$0 total</span>
+            </div>
+
+            <table th:if="${!#lists.isEmpty(allExpenses)}">
+                <thead>
+                <tr>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="exp : ${allExpenses}">
+                    <td><span class="td-amount" th:text="${currency} + ${exp.amount}">$0</span></td>
+                    <td><span class="td-cat" th:text="${exp.category}">—</span></td>
+                    <td><span class="td-date" th:text="${exp.date}">—</span></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(allExpenses)}">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="2" y="5" width="20" height="14" rx="2"/>
+                        <line x1="2" y1="10" x2="22" y2="10"/>
+                    </svg>
+                </div>
+                <div class="empty-title">No expenses yet</div>
+                <div class="empty-sub">Start adding expenses to generate a report.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Back link -->
+    <a href="/dashboard" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back to Dashboard
+    </a>
+
+</div>
+
+</body>
+</html>

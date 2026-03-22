@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Comparison — ExTracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --cream:       #f7f3ec;
+            --cream-dark:  #ede7da;
+            --forest:      #1c3a2f;
+            --forest-mid:  #2a5444;
+            --teal:        #2a9d8f;
+            --teal-light:  #d6f0ed;
+            --teal-mid:    #52c4b6;
+            --coral:       #e76f51;
+            --coral-light: #fce8e2;
+            --gold:        #e9c46a;
+            --gold-light:  #fdf5dc;
+            --green:       #52b788;
+            --green-light: #d8f3dc;
+            --ink:         #1a1a1a;
+            --muted:       #6b7a74;
+            --border:      #c8e0dc;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Epilogue', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+        }
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(42,157,143,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42,157,143,0.025) 1px, transparent 1px);
+            background-size: 52px 52px;
+            pointer-events: none; z-index: 0;
+        }
+
+        .topnav {
+            position: sticky; top: 0; z-index: 200;
+            background: var(--forest);
+            display: flex; align-items: center;
+            height: 60px; padding: 0 40px;
+            animation: fadeDown 0.5s ease both;
+        }
+
+        .nav-brand {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem; font-weight: 700;
+            color: #fff; letter-spacing: -0.02em;
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-brand-dot {
+            width: 8px; height: 8px;
+            background: var(--teal); border-radius: 50%;
+            box-shadow: 0 0 0 3px rgba(42,157,143,0.25);
+        }
+
+        .nav-links {
+            display: flex; align-items: center; gap: 2px; margin-left: 40px;
+        }
+
+        .nav-link {
+            font-size: 0.75rem; font-weight: 500;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            color: rgba(255,255,255,0.45); text-decoration: none;
+            padding: 6px 14px; border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .nav-link:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.07); }
+        .nav-link.active { color: #fff; background: rgba(42,157,143,0.2); }
+
+        .nav-right {
+            margin-left: auto; display: flex; align-items: center; gap: 16px;
+        }
+
+        .nav-signout {
+            font-size: 0.72rem; color: rgba(255,255,255,0.4);
+            text-decoration: none; letter-spacing: 0.04em;
+            transition: color 0.2s; display: flex; align-items: center; gap: 5px;
+        }
+        .nav-signout:hover { color: var(--coral); }
+        .nav-signout svg { width: 13px; height: 13px; }
+
+        .page-wrap {
+            max-width: 1100px; margin: 0 auto;
+            padding: 40px; position: relative; z-index: 1;
+        }
+
+        .page-header {
+            margin-bottom: 36px;
+            animation: fadeSlideUp 0.5s 0.05s ease both;
+        }
+
+        .page-eyebrow {
+            font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--teal); font-weight: 600; margin-bottom: 6px;
+        }
+
+        .page-title {
+            font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 700;
+            color: var(--forest); letter-spacing: -0.02em; line-height: 1.1;
+        }
+
+        .page-subtitle { font-size: 0.8rem; color: var(--muted); margin-top: 5px; font-weight: 300; }
+
+        .month-strip {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 16px; margin-bottom: 28px;
+            animation: fadeSlideUp 0.5s 0.1s ease both;
+        }
+
+        .month-label {
+            background: var(--forest);
+            border-radius: 2px; padding: 20px 24px;
+            position: relative; overflow: hidden;
+        }
+
+        .month-label::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse 60% 80% at 100% 50%, rgba(42,157,143,0.15) 0%, transparent 70%);
+        }
+
+        .month-label.past::before {
+            background: radial-gradient(ellipse 60% 80% at 0% 50%, rgba(233,196,106,0.12) 0%, transparent 70%);
+        }
+
+        .month-tag {
+            font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
+            color: rgba(255,255,255,0.35); font-weight: 600; margin-bottom: 6px;
+            position: relative;
+        }
+
+        .month-name {
+            font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 700;
+            color: #fff; letter-spacing: -0.02em; position: relative;
+        }
+
+        .month-name.current { color: var(--teal-mid); }
+        .month-name.past    { color: var(--gold); }
+
+        .month-total {
+            font-size: 0.8rem; color: rgba(255,255,255,0.4);
+            margin-top: 4px; position: relative;
+        }
+
+        .month-total span {
+            font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 700;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .summary-strip {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 14px; margin-bottom: 28px;
+            animation: fadeSlideUp 0.5s 0.15s ease both;
+        }
+
+        .summary-card {
+            background: #fff; border: 1px solid var(--border); border-radius: 2px;
+            padding: 18px 22px; position: relative; overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        }
+
+        .summary-card.s1::before { background: var(--teal); }
+        .summary-card.s2::before { background: var(--coral); }
+        .summary-card.s3::before { background: var(--green); }
+
+        .summary-label {
+            font-size: 0.63rem; letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--muted); font-weight: 600; margin-bottom: 8px;
+        }
+
+        .summary-val {
+            font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 700;
+            color: var(--forest); line-height: 1;
+        }
+
+        .summary-val.up   { color: var(--coral); }
+        .summary-val.down { color: var(--green); }
+
+        .summary-sub { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+
+        .chart-card {
+            background: #fff; border: 1px solid var(--border); border-radius: 2px;
+            overflow: hidden; margin-bottom: 20px;
+            animation: fadeSlideUp 0.5s 0.2s ease both;
+        }
+
+        .chart-head {
+            padding: 20px 24px 16px; border-bottom: 1px solid var(--cream-dark);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .chart-title {
+            font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700; color: var(--forest);
+        }
+
+        .chart-legend {
+            display: flex; align-items: center; gap: 16px;
+        }
+
+        .legend-item {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.7rem; color: var(--muted); font-weight: 500;
+        }
+
+        .legend-dot {
+            width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+        }
+
+        .legend-dot.past    { background: var(--gold); }
+        .legend-dot.current { background: var(--teal); }
+
+        .chart-body { padding: 24px; }
+
+        .bar-group {
+            display: flex; align-items: flex-end;
+            gap: 12px; margin-bottom: 20px;
+        }
+
+        .bar-group:last-child { margin-bottom: 0; }
+
+        .bar-label {
+            font-size: 0.72rem; color: var(--muted); font-weight: 500;
+            min-width: 80px; padding-bottom: 4px;
+        }
+
+        .bars {
+            flex: 1; display: flex; flex-direction: column; gap: 6px;
+        }
+
+        .bar-row {
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .bar-track {
+            flex: 1; height: 28px; background: var(--cream-dark);
+            border-radius: 2px; overflow: hidden; position: relative;
+        }
+
+        .bar-fill {
+            height: 100%; border-radius: 2px;
+            transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex; align-items: center; padding-left: 10px;
+            font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.9);
+            min-width: 0;
+        }
+
+        .bar-fill.past    { background: linear-gradient(90deg, #c89a3a, var(--gold)); }
+        .bar-fill.current { background: linear-gradient(90deg, var(--teal), var(--teal-mid)); }
+
+        .bar-amount {
+            font-size: 0.72rem; font-weight: 600; color: var(--forest);
+            min-width: 56px; text-align: right;
+        }
+
+        .bottom-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 20px; animation: fadeSlideUp 0.5s 0.3s ease both;
+        }
+
+        .table-card {
+            background: #fff; border: 1px solid var(--border); border-radius: 2px; overflow: hidden;
+        }
+
+        .table-head {
+            padding: 18px 22px 14px; border-bottom: 1px solid var(--cream-dark);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .table-title {
+            font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 700; color: var(--forest);
+        }
+
+        .month-pill {
+            font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em;
+            text-transform: uppercase; padding: 3px 10px; border-radius: 20px;
+        }
+
+        .month-pill.current { background: var(--teal-light); color: var(--teal); }
+        .month-pill.past    { background: var(--gold-light); color: #a07a10; }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        thead th {
+            padding: 10px 18px; text-align: left;
+            font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--muted); font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            background: var(--cream);
+        }
+
+        tbody tr { border-bottom: 1px solid var(--cream-dark); transition: background 0.15s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: var(--cream); }
+
+        tbody td { padding: 12px 18px; font-size: 0.8rem; color: var(--ink); vertical-align: middle; }
+
+        .td-amount {
+            font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 700; color: var(--forest);
+        }
+
+        .td-cat {
+            display: inline-flex; align-items: center;
+            background: var(--teal-light); color: var(--teal);
+            font-size: 0.65rem; font-weight: 600; letter-spacing: 0.05em;
+            text-transform: uppercase; padding: 3px 8px; border-radius: 20px;
+        }
+
+        .td-cat.past-cat { background: var(--gold-light); color: #a07a10; }
+
+        .td-date { color: var(--muted); font-size: 0.75rem; }
+
+        .empty-row td {
+            padding: 32px 18px; text-align: center;
+            font-size: 0.8rem; color: var(--muted); font-style: italic;
+        }
+
+        .back-link {
+            margin-top: 28px; display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.75rem; color: var(--muted); text-decoration: none; transition: color 0.2s;
+            animation: fadeSlideUp 0.5s 0.4s ease both;
+        }
+
+        .back-link:hover { color: var(--teal); }
+        .back-link svg { width: 14px; height: 14px; }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .page-wrap { padding: 20px; }
+            .month-strip { grid-template-columns: 1fr; }
+            .summary-strip { grid-template-columns: 1fr; }
+            .bottom-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOPNAV -->
+<nav class="topnav">
+    <a class="nav-brand" href="/dashboard">
+        <span class="nav-brand-dot"></span>
+        ExTracker
+    </a>
+    <div class="nav-links">
+        <a class="nav-link" href="/dashboard">Overview</a>
+        <a class="nav-link" href="/add-expense">Expense</a>
+        <a class="nav-link" href="/add-income">Income</a>
+        <a class="nav-link active" href="/comparison">Comparison</a>
+        <a class="nav-link" href="/reports">Reports</a>
+        <a class="nav-link" href="/savings">Savings</a>
+        <a class="nav-link" href="/settings">Settings</a>
+    </div>
+    <div class="nav-right">
+        <a class="nav-signout" href="/">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign out
+        </a>
+    </div>
+</nav>
+
+<div class="page-wrap">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <p class="page-eyebrow">Analytics</p>
+        <h1 class="page-title">Monthly Comparison</h1>
+        <p class="page-subtitle">Compare your spending between last month and this month</p>
+    </div>
+
+    <!-- Month Labels -->
+    <div class="month-strip">
+        <div class="month-label past">
+            <div class="month-tag">Last Month</div>
+            <div class="month-name past" th:text="${lastMonthName}">February 2026</div>
+            <div class="month-total">Total spent: <span th:text="${currency} + ${lastMonthTotal}">$0.00</span></div>
+        </div>
+        <div class="month-label">
+            <div class="month-tag">Current Month</div>
+            <div class="month-name current" th:text="${currentMonthName}">March 2026</div>
+            <div class="month-total">Total spent: <span th:text="${currency} + ${currentMonthTotal}">$0.00</span></div>
+        </div>
+    </div>
+
+    <!-- Summary Strip -->
+    <div class="summary-strip">
+        <div class="summary-card s1">
+            <div class="summary-label">Last Month Total</div>
+            <div class="summary-val" th:text="${currency} + ${lastMonthTotal}">$0.00</div>
+            <div class="summary-sub" th:text="${lastMonthName}">February 2026</div>
+        </div>
+        <div class="summary-card s2">
+            <div class="summary-label">Current Month Total</div>
+            <div class="summary-val" th:text="${currency} + ${currentMonthTotal}">$0.00</div>
+            <div class="summary-sub" th:text="${currentMonthName}">March 2026</div>
+        </div>
+        <div class="summary-card s3">
+            <div class="summary-label">Difference</div>
+            <div class="summary-val"
+                 th:classappend="${difference >= 0} ? 'up' : 'down'"
+                 th:text="${difference >= 0} ? ('+' + ${currency} + ${difference}) : ('-' + ${currency} + ${#numbers.formatDecimal(difference * -1, 1, 2)})">
+                $0.00
+            </div>
+            <div class="summary-sub"
+                 th:text="${difference >= 0} ? 'Spent more this month' : 'Spent less this month'">
+                —
+            </div>
+        </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="chart-card">
+        <div class="chart-head">
+            <span class="chart-title">Spending by Category</span>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <span class="legend-dot past"></span>
+                    <span th:text="${lastMonthName}">Last Month</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot current"></span>
+                    <span th:text="${currentMonthName}">This Month</span>
+                </div>
+            </div>
+        </div>
+        <div class="chart-body">
+
+            <div class="bar-group" th:each="cat : ${categoryComparison}">
+                <div class="bar-label" th:text="${cat.category}">Category</div>
+                <div class="bars">
+                    <!-- Last month bar -->
+                    <div class="bar-row">
+                        <div class="bar-track">
+                            <div class="bar-fill past"
+                                 th:style="'width:' + ${cat.lastPct} + '%'"
+                                 th:text="${cat.lastPct > 10} ? ${currency} + ${cat.lastAmount} : ''">
+                            </div>
+                        </div>
+                        <div class="bar-amount" th:text="${currency} + ${cat.lastAmount}">$0</div>
+                    </div>
+                    <!-- Current month bar -->
+                    <div class="bar-row">
+                        <div class="bar-track">
+                            <div class="bar-fill current"
+                                 th:style="'width:' + ${cat.currentPct} + '%'"
+                                 th:text="${cat.currentPct > 10} ? ${currency} + ${cat.currentAmount} : ''">
+                            </div>
+                        </div>
+                        <div class="bar-amount" th:text="${currency} + ${cat.currentAmount}">$0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(categoryComparison)}"
+                 style="text-align:center; padding:40px; color:var(--muted); font-size:0.82rem;">
+                No expense data available for comparison yet.
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bottom: two expense tables -->
+    <div class="bottom-grid">
+
+        <!-- Last Month Table -->
+        <div class="table-card">
+            <div class="table-head">
+                <span class="table-title">Last Month Expenses</span>
+                <span class="month-pill past" th:text="${lastMonthName}">Feb</span>
+            </div>
+            <table>
+                <thead>
+                <tr>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="exp : ${lastMonthExpenses}">
+                    <td><span class="td-amount" th:text="${currency} + ${exp.amount}">$0</span></td>
+                    <td><span class="td-cat past-cat" th:text="${exp.category}">—</span></td>
+                    <td><span class="td-date" th:text="${exp.date}">—</span></td>
+                </tr>
+                <tr class="empty-row" th:if="${#lists.isEmpty(lastMonthExpenses)}">
+                    <td colspan="3">No expenses recorded last month.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Current Month Table -->
+        <div class="table-card">
+            <div class="table-head">
+                <span class="table-title">This Month Expenses</span>
+                <span class="month-pill current" th:text="${currentMonthName}">Mar</span>
+            </div>
+            <table>
+                <thead>
+                <tr>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="exp : ${currentMonthExpenses}">
+                    <td><span class="td-amount" th:text="${currency} + ${exp.amount}">$0</span></td>
+                    <td><span class="td-cat" th:text="${exp.category}">—</span></td>
+                    <td><span class="td-date" th:text="${exp.date}">—</span></td>
+                </tr>
+                <tr class="empty-row" th:if="${#lists.isEmpty(currentMonthExpenses)}">
+                    <td colspan="3">No expenses recorded this month yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- Back link -->
+    <a href="/dashboard" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Back to Dashboard
+    </a>
+
+</div>
+
+</body>
+</html>
